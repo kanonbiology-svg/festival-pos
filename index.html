@@ -276,7 +276,7 @@
     <h1>学園祭 売上計算レジ</h1>
     <div class="status-badge">
       <span class="status-dot"></span>
-      <span>スプレッドシート自動同期中</span> | 端末内記録: <span id="record-count">0</span> 件
+      <span>レジ稼働中</span> | 端末内記録: <span id="record-count">0</span> 件
     </div>
   </div>
 
@@ -341,7 +341,7 @@
     直前の操作を取り消す (端末内Undo)
   </button>
 
-  <!-- 4. 集計ボード (この端末の集計) -->
+  <!-- 4. 集計ボード -->
   <div class="card">
     <div class="dashboard-total">
       <div class="label">この端末の合計売上</div>
@@ -358,9 +358,8 @@
 <div id="toast"></div>
 
 <script>
-  // ★ ここにStep 2で取得したGASのウェブアプリURLを貼り付けます ★
-  const GAS_WEBAPP_URL = "https://script.google.com/a/macros/med.miyazaki-u.ac.jp/s/AKfycbz57UWycRfeyeA6Q-XSKJTXK-h-KOSW526IwuDeQbYAp5VDwuHRmz9jtetjVVPHOZej/exec
-";
+  // いただいたGASのURLを設定済み
+  const GAS_WEBAPP_URL = "https://script.google.com/a/macros/med.miyazaki-u.ac.jp/s/AKfycbz57UWycRfeyeA6Q-XSKJTXK-h-KOSW526IwuDeQbYAp5VDwuHRmz9jtetjVVPHOZej/exec";
 
   let qtyAdvance = 1;
   let qtySameday = 1;
@@ -386,52 +385,54 @@
   }
 
   function registerSale(category, item, price, type) {
-    const selectedQty = (type === 'advance') ? qtyAdvance : qtySameday;
-    const timestamp = new Date();
-    const formattedTime = `${timestamp.getFullYear()}/${(timestamp.getMonth()+1).toString().padStart(2,'0')}/${timestamp.getDate().toString().padStart(2,'0')} ${timestamp.getHours().toString().padStart(2,'0')}:${timestamp.getMinutes().toString().padStart(2,'0')}:${timestamp.getSeconds().toString().padStart(2,'0')}`;
+    try {
+      const selectedQty = (type === 'advance') ? qtyAdvance : qtySameday;
+      const timestamp = new Date();
+      const formattedTime = `${timestamp.getFullYear()}/${(timestamp.getMonth()+1).toString().padStart(2,'0')}/${timestamp.getDate().toString().padStart(2,'0')} ${timestamp.getHours().toString().padStart(2,'0')}:${timestamp.getMinutes().toString().padStart(2,'0')}:${timestamp.getSeconds().toString().padStart(2,'0')}`;
 
-    const record = {
-      id: Date.now(),
-      time: formattedTime,
-      category: category,
-      item: item,
-      price: price,
-      qty: selectedQty,
-      subtotal: price * selectedQty
-    };
+      const record = {
+        id: Date.now(),
+        time: formattedTime,
+        category: category,
+        item: item,
+        price: price,
+        qty: selectedQty,
+        subtotal: price * selectedQty
+      };
 
-    salesData.push(record);
-    saveLocalData();
-    
-    // スプレッドシートへ裏側で即時送信
-    sendToGoogleSheet(record);
+      salesData.push(record);
+      saveLocalData();
 
-    showToast(`記録 & 同期中: ${category} ${item} ×${selectedQty}`);
-    selectQty(type, 1);
-    updateUI();
+      // エラーが起きてもアプリを停止させない非同期送信処理
+      setTimeout(() => { sendToGoogleSheet(record); }, 10);
+
+      showToast(`記録: ${category} ${item} ×${selectedQty}`);
+      selectQty(type, 1);
+      updateUI();
+    } catch(e) {
+      console.error(e);
+    }
   }
 
-  // スプレッドシートへ送信する関数
   function sendToGoogleSheet(record) {
-    if (!GAS_WEBAPP_URL || GAS_WEBAPP_URL.includes("ここにコピーしたURL")) return;
-
-    fetch(GAS_WEBAPP_URL, {
-      method: "POST",
-      mode: "no-cors", // CORSエラーを回避
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(record)
-    }).then(() => {
-      console.log("送信完了");
-    }).catch(err => {
-      console.error("送信エラー:", err);
-    });
+    if (!GAS_WEBAPP_URL) return;
+    try {
+      fetch(GAS_WEBAPP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(record)
+      }).catch(err => console.log("同期スキップ (ローカルにのみ保存)"));
+    } catch(e) {
+      console.log("同期エラー");
+    }
   }
 
   function undoLast() {
     if (salesData.length === 0) return;
     const removed = salesData.pop();
     saveLocalData();
-    showToast(`端末上のみ取消: ${removed.category} ${removed.item}`);
+    showToast(`取消: ${removed.category} ${removed.item}`);
     updateUI();
   }
 
@@ -507,11 +508,11 @@
   }
 
   function clearData() {
-    if (confirm("端末内の記憶を削除しますか？\n（Googleスプレッドシート側のデータは削除されません）")) {
+    if (confirm("端末内の記憶を削除しますか？")) {
       salesData = [];
       saveLocalData();
       updateUI();
-      showToast("端末データをクリアしました");
+      showToast("データをクリアしました");
     }
   }
 
