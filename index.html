@@ -276,7 +276,7 @@
     <h1>学園祭 売上計算レジ</h1>
     <div class="status-badge">
       <span class="status-dot"></span>
-      <span>レジ稼働中</span> | 端末内記録: <span id="record-count">0</span> 件
+      <span>スプレッドシート自動連携</span> | 記録数: <span id="record-count">0</span> 件
     </div>
   </div>
 
@@ -338,7 +338,7 @@
 
   <!-- 3. 取り消し -->
   <button id="undo-btn" class="undo-btn" onclick="undoLast()" disabled>
-    直前の操作を取り消す (端末内Undo)
+    直前の操作を取り消す (Undo)
   </button>
 
   <!-- 4. 集計ボード -->
@@ -358,8 +358,8 @@
 <div id="toast"></div>
 
 <script>
-  // いただいたGASのURLを設定済み
-  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw8hwxF8_mCI-UhE7ICMsVMbHiOAKIzSBkbKhKSdWQMwqdISBJ2HH-xPGM6Xvf3Tyjl/exec";
+  // ★ ここにご自身のGASのWEBアプリURLを設定してください
+  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyXaMnmm7ilYStOOo594w9ShBbDAZdI2r-0j9CftDDT_XicuLGTwede05EaRqfJZQqO/exec";
 
   let qtyAdvance = 1;
   let qtySameday = 1;
@@ -391,6 +391,7 @@
       const formattedTime = `${timestamp.getFullYear()}/${(timestamp.getMonth()+1).toString().padStart(2,'0')}/${timestamp.getDate().toString().padStart(2,'0')} ${timestamp.getHours().toString().padStart(2,'0')}:${timestamp.getMinutes().toString().padStart(2,'0')}:${timestamp.getSeconds().toString().padStart(2,'0')}`;
 
       const record = {
+        action: "register",
         id: Date.now(),
         time: formattedTime,
         category: category,
@@ -403,8 +404,8 @@
       salesData.push(record);
       saveLocalData();
 
-      // エラーが起きてもアプリを停止させない非同期送信処理
-      setTimeout(() => { sendToGoogleSheet(record); }, 10);
+      // スプレッドシート送信
+      sendToGoogleSheet(record);
 
       showToast(`記録: ${category} ${item} ×${selectedQty}`);
       selectQty(type, 1);
@@ -414,26 +415,32 @@
     }
   }
 
-  function sendToGoogleSheet(record) {
-    if (!GAS_WEBAPP_URL) return;
+  // 取り消し（Undo）実行
+  function undoLast() {
+    if (salesData.length === 0) return;
+
+    const removed = salesData.pop();
+    saveLocalData();
+
+    // スプレッドシート側へ行削除リクエストを送信
+    sendToGoogleSheet({ action: "undo" });
+
+    showToast(`取消: ${removed.category} ${removed.item}`);
+    updateUI();
+  }
+
+  function sendToGoogleSheet(payload) {
+    if (!GAS_WEBAPP_URL || GAS_WEBAPP_URL.includes("ここにコピーしたURL")) return;
     try {
       fetch(GAS_WEBAPP_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(record)
-      }).catch(err => console.log("同期スキップ (ローカルにのみ保存)"));
+        body: JSON.stringify(payload)
+      }).catch(err => console.log("同期エラー"));
     } catch(e) {
-      console.log("同期エラー");
+      console.log("通信エラー");
     }
-  }
-
-  function undoLast() {
-    if (salesData.length === 0) return;
-    const removed = salesData.pop();
-    saveLocalData();
-    showToast(`取消: ${removed.category} ${removed.item}`);
-    updateUI();
   }
 
   function saveLocalData() {
