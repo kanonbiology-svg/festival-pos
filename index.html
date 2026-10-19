@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>学園祭 売上レジシステム</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-main: #1e293b;
+      --text-sub: #64748b;
+      
+      --advance-grad: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      --advance-shadow: rgba(37, 99, 235, 0.25);
+      
+      --sameday-grad: linear-gradient(135deg, #f97316 0%, #c2410c 100%);
+      --sameday-shadow: rgba(234, 88, 12, 0.25);
+      
+      --accent-color: #6366f1;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      padding: 16px 12px 40px;
+      min-height: 100vh;
+    }
+
+    .main-container {
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ヘッダー */
+    .header {
+      text-align: center;
+      padding: 4px 0;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-top: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--success-color);
+      box-shadow: 0 0 8px var(--success-color);
+    }
+
+    /* Card Layout */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    /* 数量選択 */
+    .qty-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .section-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .qty-display {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--accent-color);
+      background: rgba(99, 102, 241, 0.1);
+      padding: 2px 12px;
+      border-radius: 12px;
+    }
+
+    .qty-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .qty-btn {
+      background: #f1f5f9;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 12px 0;
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .qty-btn.active {
+      background: var(--accent-color);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+      transform: translateY(-2px);
+    }
+
+    /* 商品ボタン共通 */
+    .group-title {
+      font-size: 0.95rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .group-title.advance { color: #2563eb; }
+    .group-title.sameday { color: #ea580c; }
+
+    .item-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .item-btn {
+      border: none;
+      border-radius: var(--radius-lg);
+      padding: 16px 12px;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 110px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .item-btn:active {
+      transform: scale(0.95);
+    }
+
+    .btn-advance {
+      background: var(--advance-grad);
+      box-shadow: 0 8px 16px var(--advance-shadow);
+    }
+
+    .btn-sameday {
+      background: var(--sameday-grad);
+      box-shadow: 0 8px 16px var(--sameday-shadow);
+    }
+
+    .item-btn .price-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(4px);
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .item-btn .item-name {
+      font-size: 1.15rem;
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.25;
+      margin: 6px 0;
+    }
+
+    /* アクション */
+    .undo-btn {
+      width: 100%;
+      background: #ffffff;
+      color: var(--text-main);
+      border: 2px solid #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .undo-btn:not(:disabled):active {
+      background: #f8fafc;
+      transform: translateY(1px);
+    }
+
+    .undo-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: #cbd5e1;
+    }
+
+    /* ダッシュボード集計 */
+    .dashboard-total {
+      text-align: center;
+      padding-bottom: 14px;
+      border-bottom: 2px dashed #e2e8f0;
+      margin-bottom: 14px;
+    }
+
+    .dashboard-total .label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-sub);
+    }
+
+    .dashboard-total .amount-wrap {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.1;
+      margin-top: 4px;
+    }
+
+    .dashboard-total .unit {
+      font-size: 1.5rem;
+      margin-right: 4px;
+      color: var(--text-sub);
+    }
+
+    .summary-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+    }
+
+    .summary-item .item-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .summary-item .count-badge {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      background: #f1f5f9;
+      padding: 2px 8px;
+      border-radius: 6px;
+      color: var(--text-main);
+    }
+
+    .summary-item .subtotal {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .admin-buttons {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: none;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .btn-danger-light {
+      background: #fef2f2;
+      color: var(--danger-color);
+      border: 1px solid #fecaca;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    /* トースト */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1e293b;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<div class="main-container">
+  <!-- ヘッダー -->
+  <div class="header">
+    <h1>学園祭レジ</h1>
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      <span>オフライン自動保存対応</span> | 記録: <span id="record-count">0</span>件
+    </div>
+  </div>
+
+  <!-- 1. 数量選択 -->
+  <div class="card">
+    <div class="qty-header">
+      <span class="section-label">① 数量指定</span>
+      <span class="qty-display"><span id="selected-qty-num">1</span> 個</span>
+    </div>
+    <div class="qty-grid">
+      <button class="qty-btn active" onclick="selectQty(1)">1</button>
+      <button class="qty-btn" onclick="selectQty(2)">2</button>
+      <button class="qty-btn" onclick="selectQty(3)">3</button>
+      <button class="qty-btn" onclick="selectQty(4)">4</button>
+      <button class="qty-btn" onclick="selectQty(5)">5</button>
+    </div>
+  </div>
+
+  <!-- 2. 前売り券 -->
+  <div class="card">
+    <div class="group-title advance">
+      <span>🎫</span> 前売り券（一律 200円）
+    </div>
+    <div class="item-grid">
+      <button class="item-btn btn-advance" onclick="registerSale('前売り', '焼きおにぎり2個セット', 200)">
+        <span class="price-tag">前売 200円</span>
+        <span class="item-name">焼きおにぎり<br>2個セット</span>
+      </button>
+      <button class="item-btn btn-advance" onclick="registerSale('前売り', 'お茶漬け1杯', 200)">
+        <span class="price-tag">前売 200円</span>
+        <span class="item-name">お茶漬け<br>1杯</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. 当日販売 -->
+  <div class="card">
+    <div class="group-title sameday">
+      <span>🍱</span> 当日販売
+    </div>
+    <div class="item-grid">
+      <button class="item-btn btn-sameday" onclick="registerSale('当日', '焼きおにぎり1個', 150)">
+        <span class="price-tag">当日 150円</span>
+        <span class="item-name">焼きおにぎり<br>1個</span>
+      </button>
+      <button class="item-btn btn-sameday" onclick="registerSale('当日', 'お茶漬け1杯', 250)">
+        <span class="price-tag">当日 250円</span>
+        <span class="item-name">お茶漬け<br>1杯</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 4. 取り消し -->
+  <button id="undo-btn" class="undo-btn" onclick="undoLast()" disabled>
+    <span>↩</span> 直前の操作を取り消す (Undo)
+  </button>
+
+  <!-- 5. 売上ダッシュボード -->
+  <div class="card">
+    <div class="dashboard-total">
+      <div class="label">現在の合計売上</div>
+      <div class="amount-wrap"><span class="unit">¥</span><span id="total-amount">0</span></div>
+    </div>
+
+    <div class="summary-list" id="summary-list">
+      <!-- Dynamic Rows -->
+    </div>
+
+    <div class="admin-buttons">
+      <button class="btn-secondary" onclick="exportCSV()">📥 CSV形式で出力</button>
+      <button class="btn-danger-light" onclick="clearData()">全リセット</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  let currentQty = 1;
+  let salesData = [];
+
+  // 音声フィードバック用（Web Audio API）
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function playClickSound(freq = 600, duration = 0.05) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  }
+
+  function vibrate() {
+    if (navigator.vibrate) navigator.vibrate(40);
+  }
+
+  window.onload = function() {
+    loadLocalData();
+    updateUI();
+  };
+
+  function selectQty(qty) {
+    playClickSound(800, 0.03);
+    vibrate();
+    currentQty = qty;
+    document.getElementById('selected-qty-num').innerText = qty;
+    const btns = document.querySelectorAll('.qty-btn');
+    btns.forEach((btn, idx) => {
+      btn.classList.toggle('active', idx + 1 === qty);
+    });
+  }
+
+  function registerSale(category, item, price) {
+    playClickSound(523.25, 0.08); // C5 sound
+    vibrate();
+
+    const timestamp = new Date();
+    const formattedTime = `${timestamp.getFullYear()}/${(timestamp.getMonth()+1).toString().padStart(2,'0')}/${timestamp.getDate().toString().padStart(2,'0')} ${timestamp.getHours().toString().padStart(2,'0')}:${timestamp.getMinutes().toString().padStart(2,'0')}:${timestamp.getSeconds().toString().padStart(2,'0')}`;
+
+    const record = {
+      id: Date.now(),
+      time: formattedTime,
+      category: category,
+      item: item,
+      price: price,
+      qty: currentQty,
+      subtotal: price * currentQty
+    };
+
+    salesData.push(record);
+    saveLocalData();
+    showToast(`【記録】${category} ${item} ×${currentQty}`);
+    selectQty(1);
+    updateUI();
+  }
+
+  function undoLast() {
+    if (salesData.length === 0) return;
+    playClickSound(300, 0.1);
+    vibrate();
+
+    const removed = salesData.pop();
+    saveLocalData();
+    showToast(`【取消】${removed.category} ${removed.item}`);
+    updateUI();
+  }
+
+  function saveLocalData() {
+    localStorage.setItem('school_fest_sales', JSON.stringify(salesData));
+  }
+
+  function loadLocalData() {
+    const saved = localStorage.getItem('school_fest_sales');
+    if (saved) {
+      try { salesData = JSON.parse(saved); } catch(e) { salesData = []; }
+    }
+  }
+
+  function updateUI() {
+    document.getElementById('record-count').innerText = salesData.length;
+    document.getElementById('undo-btn').disabled = salesData.length === 0;
+
+    let total = 0;
+    const summary = {
+      '前売_おにぎり2個': { name: '[前売] 焼きおにぎり2個', price: 200, qty: 0 },
+      '前売_お茶漬け':     { name: '[前売] お茶漬け1杯',     price: 200, qty: 0 },
+      '当日_おにぎり1個': { name: '[当日] 焼きおにぎり1個', price: 150, qty: 0 },
+      '当日_お茶漬け':     { name: '[当日] お茶漬け1杯',     price: 250, qty: 0 }
+    };
+
+    salesData.forEach(r => {
+      total += r.subtotal;
+      if (r.category === '前売り' && r.item === '焼きおにぎり2個セット') summary['前売_おにぎり2個'].qty += r.qty;
+      if (r.category === '前売り' && r.item === 'お茶漬け1杯')         summary['前売_お茶漬け'].qty += r.qty;
+      if (r.category === '当日'   && (r.item === '焼きおにぎり1個' || r.item === '焼きお配置1個')) summary['当日_おにぎり1個'].qty += r.qty;
+      if (r.category === '当日'   && r.item === 'お茶漬け1杯')         summary['当日_お茶漬け'].qty += r.qty;
+    });
+
+    document.getElementById('total-amount').innerText = total.toLocaleString();
+
+    const listContainer = document.getElementById('summary-list');
+    listContainer.innerHTML = '';
+
+    Object.values(summary).forEach(s => {
+      const subtotal = s.price * s.qty;
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'summary-item';
+      itemDiv.innerHTML = `
+        <div class="item-info">
+          <span>${s.name}</span>
+          <span class="count-badge">${s.qty}個</span>
+        </div>
+        <div class="subtotal">¥${subtotal.toLocaleString()}</div>
+      `;
+      listContainer.appendChild(itemDiv);
+    });
+  }
+
+  function exportCSV() {
+    if (salesData.length === 0) {
+      alert("出力するデータがありません。");
+      return;
+    }
+    let csvContent = "\uFEFF日時,区分,商品名,単価,数量,小計\n";
+    salesData.forEach(r => {
+      csvContent += `"${r.time}","${r.category}","${r.item}",${r.price},${r.qty},${r.subtotal}\n`;
+    });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const dateStr = new Date().toISOString().slice(0,10);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `売上データ_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function clearData() {
+    if (confirm("【確認】全記録をリセットしますか？\n(事前にCSVダウンロードをおすすめします)")) {
+      salesData = [];
+      saveLocalData();
+      updateUI();
+      showToast("データをクリアしました");
+    }
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); }, 1800);
+  }
+</script>
+</body>
+</html>
