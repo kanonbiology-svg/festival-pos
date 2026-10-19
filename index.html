@@ -21,7 +21,8 @@
       --qty-bg: #1e293b;
       --qty-btn-bg: #334155;
       --qty-btn-active: #ffffff;
-      --accent-color: #0284c7;
+      --confirm-color: #15803d;
+      --confirm-hover: #166534;
       --danger-color: #dc2626;
       --radius-lg: 10px;
       --radius-md: 6px;
@@ -40,7 +41,7 @@
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      padding: 16px 12px 40px;
+      padding: 12px 12px 40px;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
@@ -50,28 +51,28 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
-    .header { text-align: center; padding: 4px 0; }
-    .header h1 { font-size: 1.3rem; font-weight: 500; color: #0f172a; }
+    .header { text-align: center; padding: 2px 0; }
+    .header h1 { font-size: 1.2rem; font-weight: 500; color: #0f172a; }
 
     .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      padding: 4px 12px;
+      padding: 2px 10px;
       border-radius: 20px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-sub);
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background-color: #16a34a;
     }
@@ -79,15 +80,15 @@
     .card {
       background: var(--card-bg);
       border-radius: var(--radius-lg);
-      padding: 16px;
+      padding: 12px;
       border: 1px solid var(--card-border);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     .group-title {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 500;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       padding-bottom: 4px;
       border-bottom: 2px solid #e2e8f0;
     }
@@ -98,21 +99,21 @@
     .item-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
     .item-btn {
       border: none;
       border-radius: var(--radius-md);
-      padding: 14px 10px;
+      padding: 10px 8px;
       color: #ffffff;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      min-height: 100px;
+      min-height: 85px;
       transition: background-color 0.15s ease;
     }
 
@@ -123,50 +124,50 @@
     .btn-sameday:active { background-color: var(--wine-hover); }
 
     .item-btn .price-tag {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       background: rgba(255, 255, 255, 0.2);
-      padding: 2px 8px;
+      padding: 1px 6px;
       border-radius: 4px;
       color: #ffffff;
     }
 
     .item-btn .item-name {
-      font-size: 1.05rem;
+      font-size: 0.95rem;
       font-weight: 500;
       text-align: center;
-      line-height: 1.3;
-      margin: 6px 0;
+      line-height: 1.2;
+      margin: 4px 0;
       color: #ffffff;
     }
 
     .qty-panel {
       background-color: var(--qty-bg);
       border-radius: var(--radius-md);
-      padding: 10px;
+      padding: 8px;
     }
 
     .qty-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
-    .qty-label { font-size: 0.75rem; color: #94a3b8; }
-    .qty-indicator { font-size: 0.85rem; color: #38bdf8; }
+    .qty-label { font-size: 0.7rem; color: #94a3b8; }
+    .qty-indicator { font-size: 0.8rem; color: #38bdf8; }
 
     .qty-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 6px;
+      gap: 4px;
     }
 
     .qty-btn {
       background: var(--qty-btn-bg);
       border: none;
       border-radius: 4px;
-      padding: 8px 0;
-      font-size: 1rem;
+      padding: 6px 0;
+      font-size: 0.95rem;
       color: #cbd5e1;
       cursor: pointer;
     }
@@ -177,74 +178,128 @@
       font-weight: 500;
     }
 
-    .undo-btn {
-      width: 100%;
+    /* カート・確定エリア */
+    .cart-card {
+      border: 2px solid var(--confirm-color);
+      background: #f0fdf4;
+    }
+
+    .cart-header {
+      font-size: 0.85rem;
+      color: var(--confirm-color);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .cart-list {
+      min-height: 48px;
+      max-height: 120px;
+      overflow-y: auto;
       background: #ffffff;
-      color: var(--text-main);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-md);
-      padding: 12px;
-      font-size: 0.9rem;
-      cursor: pointer;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 6px;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .cart-item {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px dashed #e2e8f0;
     }
+    .cart-item:last-child { border-bottom: none; }
 
-    .undo-btn:not(:disabled):active { background: #f1f5f9; }
-    .undo-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .dashboard-total {
-      text-align: center;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--card-border);
-      margin-bottom: 12px;
-    }
-
-    .dashboard-total .label { font-size: 0.8rem; color: var(--text-sub); }
-    .dashboard-total .amount-wrap { font-size: 2.2rem; font-weight: 500; color: #0f172a; line-height: 1.1; margin-top: 4px; }
-    .dashboard-total .unit { font-size: 1.3rem; margin-right: 4px; color: var(--text-sub); }
-
-    .summary-list { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; }
-    .summary-item {
+    .cart-total-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 10px;
-      background: #f8fafc;
-      border-radius: 6px;
-      border: 1px solid #f1f5f9;
+      margin-bottom: 8px;
+      padding: 0 4px;
     }
 
-    .summary-item .item-info { display: flex; align-items: center; gap: 8px; color: var(--text-main); }
-    .summary-item .count-badge { background: #e2e8f0; padding: 1px 6px; border-radius: 4px; color: #334155; font-size: 0.8rem; }
-    .summary-item .subtotal { color: #0f172a; }
-
-    .admin-buttons {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 8px;
-      margin-top: 14px;
+    .cart-total-amount {
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: #0f172a;
     }
 
-    .btn-secondary {
-      background: #f1f5f9;
-      color: #334155;
-      border: 1px solid #cbd5e1;
-      padding: 10px;
+    .confirm-btn {
+      width: 100%;
+      background: var(--confirm-color);
+      color: #ffffff;
+      border: none;
       border-radius: var(--radius-md);
-      font-size: 0.8rem;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .confirm-btn:active { background: var(--confirm-hover); }
+    .confirm-btn:disabled { background: #94a3b8; cursor: not-allowed; opacity: 0.6; }
+
+    .cart-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .btn-sub {
+      flex: 1;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      color: var(--text-main);
       cursor: pointer;
     }
 
-    .btn-danger-light {
-      background: #fef2f2;
-      color: var(--danger-color);
-      border: 1px solid #fecaca;
-      padding: 10px;
-      border-radius: var(--radius-md);
-      font-size: 0.8rem;
+    /* 一番下の控えめな総売上ボード */
+    .dashboard-card {
+      margin-top: 12px;
+      opacity: 0.85;
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .dashboard-title {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+    }
+
+    .dashboard-total {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .summary-list { display: flex; flex-direction: column; gap: 4px; font-size: 0.75rem; }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-sub);
+    }
+
+    .admin-buttons {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .btn-admin {
+      flex: 1;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      color: var(--text-sub);
       cursor: pointer;
     }
 
@@ -255,13 +310,12 @@
       transform: translateX(-50%) translateY(20px);
       background: #1e293b;
       color: #ffffff;
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 20px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       opacity: 0;
       pointer-events: none;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       z-index: 1000;
       white-space: nowrap;
     }
@@ -276,7 +330,7 @@
     <h1>学園祭 売上計算レジ</h1>
     <div class="status-badge">
       <span class="status-dot"></span>
-      <span>スプレッドシート自動連携</span> | 記録数: <span id="record-count">0</span> 件
+      <span>スプレッドシート連携中</span>
     </div>
   </div>
 
@@ -284,11 +338,11 @@
   <div class="card">
     <div class="group-title advance">前売り券（一律 200円）</div>
     <div class="item-grid">
-      <button class="item-btn btn-advance" onclick="registerSale('前売り', '焼きおにぎり2個セット', 200, 'advance')">
+      <button class="item-btn btn-advance" onclick="addToCart('前売り', '焼きおにぎり2個セット', 200, 'advance')">
         <span class="price-tag">前売 200円</span>
         <span class="item-name">焼きおにぎり<br>2個セット</span>
       </button>
-      <button class="item-btn btn-advance" onclick="registerSale('前売り', 'お茶漬け1杯', 200, 'advance')">
+      <button class="item-btn btn-advance" onclick="addToCart('前売り', 'お茶漬け1杯', 200, 'advance')">
         <span class="price-tag">前売 200円</span>
         <span class="item-name">お茶漬け<br>1杯</span>
       </button>
@@ -312,11 +366,11 @@
   <div class="card">
     <div class="group-title sameday">当日販売</div>
     <div class="item-grid">
-      <button class="item-btn btn-sameday" onclick="registerSale('当日', '焼きおにぎり1個', 150, 'sameday')">
+      <button class="item-btn btn-sameday" onclick="addToCart('当日', '焼きおにぎり1個', 150, 'sameday')">
         <span class="price-tag">当日 150円</span>
         <span class="item-name">焼きおにぎり<br>1個</span>
       </button>
-      <button class="item-btn btn-sameday" onclick="registerSale('当日', 'お茶漬け1杯', 250, 'sameday')">
+      <button class="item-btn btn-sameday" onclick="addToCart('当日', 'お茶漬け1杯', 250, 'sameday')">
         <span class="price-tag">当日 250円</span>
         <span class="item-name">お茶漬け<br>1杯</span>
       </button>
@@ -336,21 +390,33 @@
     </div>
   </div>
 
-  <!-- 3. 取り消し -->
-  <button id="undo-btn" class="undo-btn" onclick="undoLast()" disabled>
-    直前の操作を取り消す (Undo)
-  </button>
-
-  <!-- 4. 集計ボード -->
-  <div class="card">
-    <div class="dashboard-total">
-      <div class="label">この端末の合計売上</div>
-      <div class="amount-wrap"><span class="unit">¥</span><span id="total-amount">0</span></div>
+  <!-- 3. 現在の会計（カート＆確定ボタン） -->
+  <div class="card cart-card">
+    <div class="cart-header">🛒 現在の注文（未確定）</div>
+    <div class="cart-list" id="cart-list">
+      <div style="color: #94a3b8; text-align: center; padding-top: 12px;">商品を選択してください</div>
     </div>
+    <div class="cart-total-bar">
+      <span>小計</span>
+      <div class="cart-total-amount">¥ <span id="cart-total">0</span></div>
+    </div>
+    <button id="confirm-btn" class="confirm-btn" onclick="confirmOrder()" disabled>
+      お会計を確定する
+    </button>
+    <div class="cart-actions">
+      <button id="undo-cart-btn" class="btn-sub" onclick="undoCartItem()" disabled>↩ 1件取り消し</button>
+      <button id="clear-cart-btn" class="btn-sub" onclick="clearCart()" disabled>注文をやり直す</button>
+    </div>
+  </div>
+
+  <!-- 4. ひっそり表示する本日累計ダッシュボード -->
+  <div class="card dashboard-card">
+    <div class="dashboard-title">本日この端末の累計実績</div>
+    <div class="dashboard-total">総売上: ¥ <span id="total-amount">0</span> （<span id="record-count">0</span> 回の会計）</div>
     <div class="summary-list" id="summary-list"></div>
     <div class="admin-buttons">
-      <button class="btn-secondary" onclick="exportCSV()">CSVで保存する</button>
-      <button class="btn-danger-light" onclick="clearData()">端末データをクリア</button>
+      <button class="btn-admin" onclick="exportCSV()">CSV保存</button>
+      <button class="btn-admin" onclick="clearHistoryData()">累計リセット</button>
     </div>
   </div>
 </div>
@@ -358,12 +424,14 @@
 <div id="toast"></div>
 
 <script>
-  // ★ ここにご自身のGASのWEBアプリURLを設定してください
-  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyXaMnmm7ilYStOOo594w9ShBbDAZdI2r-0j9CftDDT_XicuLGTwede05EaRqfJZQqO/exec";
+  // ★ ご自身のGASのURLを設定してください
+  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyXaMnmm7ilYStOOo594w9ShBbDAZdI2r-0j9CftDDT_XicuLGTwede05EaRqfJZQqO/exec
+";
 
   let qtyAdvance = 1;
   let qtySameday = 1;
-  let salesData = [];
+  let currentCart = []; // 未確定の現在の会計
+  let historySalesData = []; // 確定済みの端末内累計履歴
 
   window.onload = function() {
     loadLocalData();
@@ -384,48 +452,63 @@
     }
   }
 
-  function registerSale(category, item, price, type) {
-    try {
-      const selectedQty = (type === 'advance') ? qtyAdvance : qtySameday;
-      const timestamp = new Date();
-      const formattedTime = `${timestamp.getFullYear()}/${(timestamp.getMonth()+1).toString().padStart(2,'0')}/${timestamp.getDate().toString().padStart(2,'0')} ${timestamp.getHours().toString().padStart(2,'0')}:${timestamp.getMinutes().toString().padStart(2,'0')}:${timestamp.getSeconds().toString().padStart(2,'0')}`;
+  // カートに商品を追加
+  function addToCart(category, item, price, type) {
+    const selectedQty = (type === 'advance') ? qtyAdvance : qtySameday;
+    const itemData = {
+      category: category,
+      item: item,
+      price: price,
+      qty: selectedQty,
+      subtotal: price * selectedQty
+    };
+    currentCart.push(itemData);
+    selectQty(type, 1); // 数量指定を1に戻す
+    updateUI();
+  }
 
+  // カートから直前の1件を削除
+  function undoCartItem() {
+    if (currentCart.length > 0) {
+      currentCart.pop();
+      updateUI();
+    }
+  }
+
+  // カート全体をリセット
+  function clearCart() {
+    currentCart = [];
+    updateUI();
+  }
+
+  // ★【お会計を確定する】ボタンを押した時の処理
+  function confirmOrder() {
+    if (currentCart.length === 0) return;
+
+    const timestamp = new Date();
+    const formattedTime = `${timestamp.getFullYear()}/${(timestamp.getMonth()+1).toString().padStart(2,'0')}/${timestamp.getDate().toString().padStart(2,'0')} ${timestamp.getHours().toString().padStart(2,'0')}:${timestamp.getMinutes().toString().padStart(2,'0')}:${timestamp.getSeconds().toString().padStart(2,'0')}`;
+
+    // カート内の各商品を確定履歴に追加し、スプレッドシートへ順次送信
+    currentCart.forEach(item => {
       const record = {
         action: "register",
         id: Date.now(),
         time: formattedTime,
-        category: category,
-        item: item,
-        price: price,
-        qty: selectedQty,
-        subtotal: price * selectedQty
+        category: item.category,
+        item: item.item,
+        price: item.price,
+        qty: item.qty,
+        subtotal: item.subtotal
       };
-
-      salesData.push(record);
-      saveLocalData();
-
-      // スプレッドシート送信
+      historySalesData.push(record);
       sendToGoogleSheet(record);
+    });
 
-      showToast(`記録: ${category} ${item} ×${selectedQty}`);
-      selectQty(type, 1);
-      updateUI();
-    } catch(e) {
-      console.error(e);
-    }
-  }
-
-  // 取り消し（Undo）実行
-  function undoLast() {
-    if (salesData.length === 0) return;
-
-    const removed = salesData.pop();
     saveLocalData();
+    showToast("お会計を確定しました（初期状態に戻ります）");
 
-    // スプレッドシート側へ行削除リクエストを送信
-    sendToGoogleSheet({ action: "undo" });
-
-    showToast(`取消: ${removed.category} ${removed.item}`);
+    // カートを空にして初期状態（デフォルト）に戻す
+    currentCart = [];
     updateUI();
   }
 
@@ -444,63 +527,80 @@
   }
 
   function saveLocalData() {
-    localStorage.setItem('school_fest_sales', JSON.stringify(salesData));
+    localStorage.setItem('school_fest_sales_history', JSON.stringify(historySalesData));
   }
 
   function loadLocalData() {
-    const saved = localStorage.getItem('school_fest_sales');
+    const saved = localStorage.getItem('school_fest_sales_history');
     if (saved) {
-      try { salesData = JSON.parse(saved); } catch(e) { salesData = []; }
+      try { historySalesData = JSON.parse(saved); } catch(e) { historySalesData = []; }
     }
   }
 
   function updateUI() {
-    document.getElementById('record-count').innerText = salesData.length;
-    document.getElementById('undo-btn').disabled = salesData.length === 0;
+    // 1. カート（現在の未確定会計）の描画
+    const cartContainer = document.getElementById('cart-list');
+    let cartTotal = 0;
 
-    let total = 0;
+    if (currentCart.length === 0) {
+      cartContainer.innerHTML = '<div style="color: #94a3b8; text-align: center; padding-top: 12px;">商品を選択してください</div>';
+    } else {
+      cartContainer.innerHTML = '';
+      currentCart.forEach(item => {
+        cartTotal += item.subtotal;
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <span>[${item.category}] ${item.item} × ${item.qty}</span>
+          <span>¥${item.subtotal.toLocaleString()}</span>
+        `;
+        cartContainer.appendChild(div);
+      });
+    }
+
+    document.getElementById('cart-total').innerText = cartTotal.toLocaleString();
+    document.getElementById('confirm-btn').disabled = currentCart.length === 0;
+    document.getElementById('undo-cart-btn').disabled = currentCart.length === 0;
+    document.getElementById('clear-cart-btn').disabled = currentCart.length === 0;
+
+    // 2. 控えめな累計ダッシュボードの描画
+    document.getElementById('record-count').innerText = historySalesData.length;
+
+    let totalSales = 0;
     const summary = {
-      '前売_おにぎり2個': { name: '[前売] 焼きおにぎり2個', price: 200, qty: 0 },
-      '前売_お茶漬け':     { name: '[前売] お茶漬け1杯',     price: 200, qty: 0 },
-      '当日_おにぎり1個': { name: '[当日] 焼きおにぎり1個', price: 150, qty: 0 },
-      '当日_お茶漬け':     { name: '[当日] お茶漬け1杯',     price: 250, qty: 0 }
+      '前売_おにぎり2個': { name: '[前売] おにぎり2個', qty: 0 },
+      '前売_お茶漬け':     { name: '[前売] お茶漬け',     qty: 0 },
+      '当日_おにぎり1個': { name: '[当日] おにぎり1個', qty: 0 },
+      '当日_お茶漬け':     { name: '[当日] お茶漬け',     qty: 0 }
     };
 
-    salesData.forEach(r => {
-      total += r.subtotal;
+    historySalesData.forEach(r => {
+      totalSales += r.subtotal;
       if (r.category === '前売り' && r.item === '焼きおにぎり2個セット') summary['前売_おにぎり2個'].qty += r.qty;
       if (r.category === '前売り' && r.item === 'お茶漬け1杯')         summary['前売_お茶漬け'].qty += r.qty;
       if (r.category === '当日'   && (r.item === '焼きおにぎり1個' || r.item === '焼きお配置1個')) summary['当日_おにぎり1個'].qty += r.qty;
       if (r.category === '当日'   && r.item === 'お茶漬け1杯')         summary['当日_お茶漬け'].qty += r.qty;
     });
 
-    document.getElementById('total-amount').innerText = total.toLocaleString();
+    document.getElementById('total-amount').innerText = totalSales.toLocaleString();
 
-    const listContainer = document.getElementById('summary-list');
-    listContainer.innerHTML = '';
-
+    const summaryContainer = document.getElementById('summary-list');
+    summaryContainer.innerHTML = '';
     Object.values(summary).forEach(s => {
-      const subtotal = s.price * s.qty;
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'summary-item';
-      itemDiv.innerHTML = `
-        <div class="item-info">
-          <span>${s.name}</span>
-          <span class="count-badge">${s.qty}個</span>
-        </div>
-        <div class="subtotal">¥${subtotal.toLocaleString()}</div>
-      `;
-      listContainer.appendChild(itemDiv);
+      const div = document.createElement('div');
+      div.className = 'summary-item';
+      div.innerHTML = `<span>${s.name}</span><span>${s.qty} 個</span>`;
+      summaryContainer.appendChild(div);
     });
   }
 
   function exportCSV() {
-    if (salesData.length === 0) {
+    if (historySalesData.length === 0) {
       alert("出力するデータがありません。");
       return;
     }
     let csvContent = "\uFEFF日時,区分,商品名,単価,数量,小計\n";
-    salesData.forEach(r => {
+    historySalesData.forEach(r => {
       csvContent += `"${r.time}","${r.category}","${r.item}",${r.price},${r.qty},${r.subtotal}\n`;
     });
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -514,12 +614,12 @@
     document.body.removeChild(link);
   }
 
-  function clearData() {
-    if (confirm("端末内の記憶を削除しますか？")) {
-      salesData = [];
+  function clearHistoryData() {
+    if (confirm("端末の累計実績を削除しますか？")) {
+      historySalesData = [];
       saveLocalData();
       updateUI();
-      showToast("データをクリアしました");
+      showToast("累計実績をクリアしました");
     }
   }
 
