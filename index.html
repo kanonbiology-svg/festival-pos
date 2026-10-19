@@ -6,33 +6,32 @@
   <title>学園祭 売上レジシステム</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #121316;
-      --card-bg: #1e2026;
-      --card-border: #2e323b;
-      --text-main: #f1f5f9;
-      --text-sub: #94a3b8;
+      /* 明るいライトテーマ */
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --text-main: #334155;
+      --text-sub: #64748b;
       
       /* 前売り：紺色 (Navy) */
       --navy-main: #1e3a8a;
-      --navy-hover: #1d4ed8;
-      --navy-border: #3b82f6;
+      --navy-hover: #1e40af;
       
       /* 当日：ワインレッド (Wine Red) */
-      --wine-main: #7f1d1d;
-      --wine-hover: #991b1b;
-      --wine-border: #ef4444;
+      --wine-main: #881337;
+      --wine-hover: #9f1239;
       
-      /* 数量：黒 */
-      --qty-bg: #0d0e11;
-      --qty-btn-bg: #1a1c23;
+      /* 数量選択：黒背景 */
+      --qty-bg: #1e293b;
+      --qty-btn-bg: #334155;
       --qty-btn-active: #ffffff;
       
-      --accent-color: #38bdf8;
-      --danger-color: #f87171;
-      --radius-lg: 14px;
+      --accent-color: #2563eb;
+      --danger-color: #dc2626;
+      --radius-lg: 12px;
       --radius-md: 8px;
     }
 
@@ -40,7 +39,8 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', 'Noto Sans JP', -apple-system, sans-serif;
+      font-family: 'Noto Sans JP', -apple-system, sans-serif;
+      font-weight: 400; /* 通常の細さに固定 */
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
@@ -68,10 +68,9 @@
     }
 
     .header h1 {
-      font-size: 1.4rem;
-      font-weight: 900;
-      color: #ffffff;
-      letter-spacing: -0.01em;
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #0f172a;
     }
 
     .status-badge {
@@ -80,10 +79,9 @@
       gap: 8px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      padding: 6px 14px;
+      padding: 4px 12px;
       border-radius: 20px;
       font-size: 0.8rem;
-      font-weight: 700;
       color: var(--text-sub);
       margin-top: 6px;
     }
@@ -92,8 +90,7 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background-color: #4ade80;
-      box-shadow: 0 0 8px #4ade80;
+      background-color: #16a34a;
     }
 
     /* メインカードUI */
@@ -102,21 +99,20 @@
       border-radius: var(--radius-lg);
       padding: 16px;
       border: 1px solid var(--card-border);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
     .group-title {
-      font-size: 1.05rem;
-      font-weight: 900;
+      font-size: 0.95rem;
+      font-weight: 500;
       margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 8px;
-      letter-spacing: -0.01em;
     }
 
-    .group-title.advance { color: #60a5fa; }
-    .group-title.sameday { color: #f87171; }
+    .group-title.advance { color: var(--navy-main); }
+    .group-title.sameday { color: var(--wine-main); }
 
     /* 商品ボタン */
     .item-grid {
@@ -127,7 +123,7 @@
     }
 
     .item-btn {
-      border: 1px solid transparent;
+      border: none;
       border-radius: var(--radius-md);
       padding: 14px 10px;
       color: #ffffff;
@@ -136,18 +132,17 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      min-height: 105px;
-      transition: all 0.1s ease;
+      min-height: 100px;
+      transition: background-color 0.15s ease;
     }
 
     .item-btn:active {
-      transform: scale(0.96);
+      opacity: 0.9;
     }
 
     /* 前売り（紺） */
     .btn-advance {
       background-color: var(--navy-main);
-      border-color: var(--navy-border);
     }
     .btn-advance:active {
       background-color: var(--navy-hover);
@@ -156,7 +151,6 @@
     /* 当日（ワインレッド） */
     .btn-sameday {
       background-color: var(--wine-main);
-      border-color: var(--wine-border);
     }
     .btn-sameday:active {
       background-color: var(--wine-hover);
@@ -164,17 +158,15 @@
 
     .item-btn .price-tag {
       font-size: 0.75rem;
-      font-weight: 700;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.2);
       padding: 2px 8px;
       border-radius: 4px;
       color: #ffffff;
     }
 
     .item-btn .item-name {
-      font-size: 1.1rem;
-      font-weight: 900;
+      font-size: 1.05rem;
+      font-weight: 500;
       text-align: center;
       line-height: 1.3;
       margin: 6px 0;
@@ -184,7 +176,6 @@
     /* 黒背景の数量指定エリア */
     .qty-panel {
       background-color: var(--qty-bg);
-      border: 1px solid #262932;
       border-radius: var(--radius-md);
       padding: 10px;
     }
@@ -198,15 +189,12 @@
 
     .qty-label {
       font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-sub);
-      letter-spacing: 0.05em;
+      color: #94a3b8;
     }
 
     .qty-indicator {
       font-size: 0.85rem;
-      font-weight: 900;
-      color: var(--accent-color);
+      color: #38bdf8;
     }
 
     .qty-grid {
@@ -217,11 +205,10 @@
 
     .qty-btn {
       background: var(--qty-btn-bg);
-      border: 1px solid #333742;
-      border-radius: 6px;
-      padding: 10px 0;
-      font-size: 1.1rem;
-      font-weight: 800;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 0;
+      font-size: 1rem;
       color: #cbd5e1;
       cursor: pointer;
       transition: all 0.1s ease;
@@ -229,35 +216,33 @@
 
     .qty-btn.active {
       background: var(--qty-btn-active);
-      color: #000000;
-      border-color: #ffffff;
-      font-weight: 900;
+      color: #0f172a;
+      font-weight: 500;
     }
 
     /* 取り消しボタン */
     .undo-btn {
       width: 100%;
-      background: #1a1d24;
+      background: #ffffff;
       color: var(--text-main);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-md);
-      padding: 14px;
-      font-size: 0.95rem;
-      font-weight: 800;
+      padding: 12px;
+      font-size: 0.9rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: all 0.1s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
 
     .undo-btn:not(:disabled):active {
-      background: #282c37;
+      background: #f1f5f9;
     }
 
     .undo-btn:disabled {
-      opacity: 0.3;
+      opacity: 0.4;
       cursor: not-allowed;
     }
 
@@ -271,21 +256,19 @@
 
     .dashboard-total .label {
       font-size: 0.8rem;
-      font-weight: 700;
       color: var(--text-sub);
     }
 
     .dashboard-total .amount-wrap {
-      font-size: 2.4rem;
-      font-weight: 900;
-      color: #ffffff;
+      font-size: 2.2rem;
+      font-weight: 500;
+      color: #0f172a;
       line-height: 1.1;
       margin-top: 4px;
-      letter-spacing: -0.02em;
     }
 
     .dashboard-total .unit {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       margin-right: 4px;
       color: var(--text-sub);
     }
@@ -293,7 +276,7 @@
     .summary-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       font-size: 0.85rem;
     }
 
@@ -301,366 +284,26 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 10px;
-      background: #16181d;
+      padding: 6px 10px;
+      background: #f8fafc;
       border-radius: 6px;
-      border: 1px solid #262932;
+      border: 1px solid #f1f5f9;
     }
 
     .summary-item .item-info {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-weight: 700;
       color: var(--text-main);
     }
 
     .summary-item .count-badge {
-      font-weight: 800;
-      background: #2a2e39;
-      padding: 2px 8px;
+      background: #e2e8f0;
+      padding: 1px 6px;
       border-radius: 4px;
-      color: var(--accent-color);
+      color: #334155;
+      font-size: 0.8rem;
     }
 
     .summary-item .subtotal {
-      font-weight: 800;
-      color: #ffffff;
-    }
-
-    .admin-buttons {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 8px;
-      margin-top: 16px;
-    }
-
-    .btn-secondary {
-      background: #2a2e3a;
-      color: #ffffff;
-      border: 1px solid #3f4454;
-      padding: 12px;
-      border-radius: var(--radius-md);
-      font-size: 0.85rem;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    .btn-danger-light {
-      background: #2c1517;
-      color: var(--danger-color);
-      border: 1px solid #5c2427;
-      padding: 12px;
-      border-radius: var(--radius-md);
-      font-size: 0.85rem;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    /* トースト通知 */
-    #toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #ffffff;
-      color: #000000;
-      padding: 12px 24px;
-      border-radius: 30px;
-      font-size: 0.9rem;
-      font-weight: 900;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.25s ease;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-      z-index: 1000;
-      white-space: nowrap;
-    }
-
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-  </style>
-</head>
-<body>
-
-<div class="main-container">
-  <!-- ヘッダー -->
-  <div class="header">
-    <h1>学園祭 売上計算レジ</h1>
-    <div class="status-badge">
-      <span class="status-dot"></span>
-      <span>オフライン同期対応</span> | 記録数: <span id="record-count">0</span> 件
-    </div>
-  </div>
-
-  <!-- 1. 前売り券エリア（紺色） -->
-  <div class="card">
-    <div class="group-title advance">
-      <span>🎫</span> 前売り券（一律 200円）
-    </div>
-    
-    <!-- 前売り商品ボタン -->
-    <div class="item-grid">
-      <button class="item-btn btn-advance" onclick="registerSale('前売り', '焼きおにぎり2個セット', 200, 'advance')">
-        <span class="price-tag">前売 200円</span>
-        <span class="item-name">焼きおにぎり<br>2個セット</span>
-      </button>
-      <button class="item-btn btn-advance" onclick="registerSale('前売り', 'お茶漬け1杯', 200, 'advance')">
-        <span class="price-tag">前売 200円</span>
-        <span class="item-name">お茶漬け<br>1杯</span>
-      </button>
-    </div>
-
-    <!-- 前売り用 数量選択（黒背景） -->
-    <div class="qty-panel">
-      <div class="qty-header">
-        <span class="qty-label">前売り券 数量指定</span>
-        <span class="qty-indicator">選択中: <span id="qty-adv-num">1</span> 個</span>
-      </div>
-      <div class="qty-grid">
-        <button class="qty-btn qty-adv-btn active" onclick="selectQty('advance', 1)">1</button>
-        <button class="qty-btn qty-adv-btn" onclick="selectQty('advance', 2)">2</button>
-        <button class="qty-btn qty-adv-btn" onclick="selectQty('advance', 3)">3</button>
-        <button class="qty-btn qty-adv-btn" onclick="selectQty('advance', 4)">4</button>
-        <button class="qty-btn qty-adv-btn" onclick="selectQty('advance', 5)">5</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. 当日販売エリア（ワインレッド） -->
-  <div class="card">
-    <div class="group-title sameday">
-      <span>🍱</span> 当日販売
-    </div>
-
-    <!-- 当日商品ボタン -->
-    <div class="item-grid">
-      <button class="item-btn btn-sameday" onclick="registerSale('当日', '焼きおにぎり1個', 150, 'sameday')">
-        <span class="price-tag">当日 150円</span>
-        <span class="item-name">焼きおにぎり<br>1個</span>
-      </button>
-      <button class="item-btn btn-sameday" onclick="registerSale('当日', 'お茶漬け1杯', 250, 'sameday')">
-        <span class="price-tag">当日 250円</span>
-        <span class="item-name">お茶漬け<br>1杯</span>
-      </button>
-    </div>
-
-    <!-- 当日用 数量選択（黒背景） -->
-    <div class="qty-panel">
-      <div class="qty-header">
-        <span class="qty-label">当日販売 数量指定</span>
-        <span class="qty-indicator">選択中: <span id="qty-same-num">1</span> 個</span>
-      </div>
-      <div class="qty-grid">
-        <button class="qty-btn qty-same-btn active" onclick="selectQty('sameday', 1)">1</button>
-        <button class="qty-btn qty-same-btn" onclick="selectQty('sameday', 2)">2</button>
-        <button class="qty-btn qty-same-btn" onclick="selectQty('sameday', 3)">3</button>
-        <button class="qty-btn qty-same-btn" onclick="selectQty('sameday', 4)">4</button>
-        <button class="qty-btn qty-same-btn" onclick="selectQty('sameday', 5)">5</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 3. 取り消し（Undo） -->
-  <button id="undo-btn" class="undo-btn" onclick="undoLast()" disabled>
-    <span>↩</span> 直前の操作を取り消す (Undo)
-  </button>
-
-  <!-- 4. 集計ボード -->
-  <div class="card">
-    <div class="dashboard-total">
-      <div class="label">現在の総売上</div>
-      <div class="amount-wrap"><span class="unit">¥</span><span id="total-amount">0</span></div>
-    </div>
-
-    <div class="summary-list" id="summary-list">
-      <!-- Dynamic Rows -->
-    </div>
-
-    <div class="admin-buttons">
-      <button class="btn-secondary" onclick="exportCSV()">📥 CSVで保存する</button>
-      <button class="btn-danger-light" onclick="clearData()">全クリア</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast"></div>
-
-<script>
-  let qtyAdvance = 1;
-  let qtySameday = 1;
-  let salesData = [];
-
-  // 音声フィードバック
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  function playClickSound(freq = 600, duration = 0.04) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
-  }
-
-  function vibrate() {
-    if (navigator.vibrate) navigator.vibrate(30);
-  }
-
-  window.onload = function() {
-    loadLocalData();
-    updateUI();
-  };
-
-  // 区分ごとの数量選択
-  function selectQty(type, qty) {
-    playClickSound(750, 0.03);
-    vibrate();
-
-    if (type === 'advance') {
-      qtyAdvance = qty;
-      document.getElementById('qty-adv-num').innerText = qty;
-      const btns = document.querySelectorAll('.qty-adv-btn');
-      btns.forEach((btn, idx) => btn.classList.toggle('active', idx + 1 === qty));
-    } else {
-      qtySameday = qty;
-      document.getElementById('qty-same-num').innerText = qty;
-      const btns = document.querySelectorAll('.qty-same-btn');
-      btns.forEach((btn, idx) => btn.classList.toggle('active', idx + 1 === qty));
-    }
-  }
-
-  // 販売登録
-  function registerSale(category, item, price, type) {
-    playClickSound(520, 0.08);
-    vibrate();
-
-    const selectedQty = (type === 'advance') ? qtyAdvance : qtySameday;
-
-    const timestamp = new Date();
-    const formattedTime = `${timestamp.getFullYear()}/${(timestamp.getMonth()+1).toString().padStart(2,'0')}/${timestamp.getDate().toString().padStart(2,'0')} ${timestamp.getHours().toString().padStart(2,'0')}:${timestamp.getMinutes().toString().padStart(2,'0')}:${timestamp.getSeconds().toString().padStart(2,'0')}`;
-
-    const record = {
-      id: Date.now(),
-      time: formattedTime,
-      category: category,
-      item: item,
-      price: price,
-      qty: selectedQty,
-      subtotal: price * selectedQty
-    };
-
-    salesData.push(record);
-    saveLocalData();
-    showToast(`【記録】${category} ${item} ×${selectedQty}`);
-    
-    // 該当区分の数量選択を1に戻す
-    selectQty(type, 1);
-    updateUI();
-  }
-
-  function undoLast() {
-    if (salesData.length === 0) return;
-    playClickSound(280, 0.08);
-    vibrate();
-
-    const removed = salesData.pop();
-    saveLocalData();
-    showToast(`【取消】${removed.category} ${removed.item}`);
-    updateUI();
-  }
-
-  function saveLocalData() {
-    localStorage.setItem('school_fest_sales', JSON.stringify(salesData));
-  }
-
-  function loadLocalData() {
-    const saved = localStorage.getItem('school_fest_sales');
-    if (saved) {
-      try { salesData = JSON.parse(saved); } catch(e) { salesData = []; }
-    }
-  }
-
-  function updateUI() {
-    document.getElementById('record-count').innerText = salesData.length;
-    document.getElementById('undo-btn').disabled = salesData.length === 0;
-
-    let total = 0;
-    const summary = {
-      '前売_おにぎり2個': { name: '[前売] 焼きおにぎり2個', price: 200, qty: 0 },
-      '前売_お茶漬け':     { name: '[前売] お茶漬け1杯',     price: 200, qty: 0 },
-      '当日_おにぎり1個': { name: '[当日] 焼きおにぎり1個', price: 150, qty: 0 },
-      '当日_お茶漬け':     { name: '[当日] お茶漬け1杯',     price: 250, qty: 0 }
-    };
-
-    salesData.forEach(r => {
-      total += r.subtotal;
-      if (r.category === '前売り' && r.item === '焼きおにぎり2個セット') summary['前売_おにぎり2個'].qty += r.qty;
-      if (r.category === '前売り' && r.item === 'お茶漬け1杯')         summary['前売_お茶漬け'].qty += r.qty;
-      if (r.category === '当日'   && (r.item === '焼きおにぎり1個' || r.item === '焼きお配置1個')) summary['当日_おにぎり1個'].qty += r.qty;
-      if (r.category === '当日'   && r.item === 'お茶漬け1杯')         summary['当日_お茶漬け'].qty += r.qty;
-    });
-
-    document.getElementById('total-amount').innerText = total.toLocaleString();
-
-    const listContainer = document.getElementById('summary-list');
-    listContainer.innerHTML = '';
-
-    Object.values(summary).forEach(s => {
-      const subtotal = s.price * s.qty;
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'summary-item';
-      itemDiv.innerHTML = `
-        <div class="item-info">
-          <span>${s.name}</span>
-          <span class="count-badge">${s.qty}個</span>
-        </div>
-        <div class="subtotal">¥${subtotal.toLocaleString()}</div>
-      `;
-      listContainer.appendChild(itemDiv);
-    });
-  }
-
-  function exportCSV() {
-    if (salesData.length === 0) {
-      alert("出力するデータがありません。");
-      return;
-    }
-    let csvContent = "\uFEFF日時,区分,商品名,単価,数量,小計\n";
-    salesData.forEach(r => {
-      csvContent += `"${r.time}","${r.category}","${r.item}",${r.price},${r.qty},${r.subtotal}\n`;
-    });
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    const dateStr = new Date().toISOString().slice(0,10);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `売上データ_${dateStr}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  function clearData() {
-    if (confirm("【確認】すべての売上記録を削除しますか？\n(事前CSV出力をおすすめします)")) {
-      salesData = [];
-      saveLocalData();
-      updateUI();
-      showToast("データをクリアしました");
-    }
-  }
-
-  function showToast(msg) {
-    const toast = document.getElementById('toast');
-    toast.innerText = msg;
-    toast.classList.add('show');
-    setTimeout(() => { toast.classList.remove('show'); }, 1800);
-  }
-</script>
-</body>
-</html>
+      color: #
