@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>学園祭 売上レジシステム</title>
+  <title>学園祭 売上レジシステム（完全オフライン版）</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
@@ -61,12 +61,12 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
       padding: 2px 10px;
       border-radius: 20px;
       font-size: 0.75rem;
-      color: var(--text-sub);
+      color: #166534;
       margin-top: 4px;
     }
 
@@ -259,7 +259,6 @@
 
     .dashboard-card {
       margin-top: 12px;
-      opacity: 0.9;
       background: #f1f5f9;
       border-color: #cbd5e1;
     }
@@ -284,23 +283,63 @@
       color: var(--text-sub);
     }
 
-    .btn-undo-confirmed {
+    .btn-toggle-history {
       width: 100%;
-      background: #fef2f2;
-      color: var(--danger-color);
-      border: 1px solid #fecaca;
+      background: #ffffff;
+      color: #334155;
+      border: 1px solid #cbd5e1;
       border-radius: var(--radius-md);
       padding: 8px;
       font-size: 0.8rem;
       margin-top: 10px;
       cursor: pointer;
+      font-weight: 500;
     }
-    .btn-undo-confirmed:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* 履歴一覧表示エリア */
+    .history-container {
+      display: none;
+      margin-top: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 6px;
+    }
+
+    .history-container.open { display: block; }
+
+    .history-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px dashed #e2e8f0;
+      font-size: 0.75rem;
+    }
+    .history-row:last-child { border-bottom: none; }
+
+    .history-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .history-time { font-size: 0.65rem; color: #94a3b8; }
+
+    .btn-del-single {
+      background: #fef2f2;
+      color: var(--danger-color);
+      border: 1px solid #fecaca;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
 
     .admin-buttons {
       display: flex;
       gap: 6px;
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
     .btn-admin {
@@ -341,7 +380,7 @@
     <h1>学園祭 売上計算レジ</h1>
     <div class="status-badge">
       <span class="status-dot"></span>
-      <span>スプレッドシート連携中</span>
+      <span>オフライン安心動作モード</span>
     </div>
   </div>
 
@@ -420,19 +459,23 @@
     </div>
   </div>
 
-  <!-- 4. 本日累計ダッシュボード -->
+  <!-- 4. 累計実績 ＆ 取引履歴一覧 -->
   <div class="card dashboard-card">
     <div class="dashboard-title">本日この端末の累計実績</div>
-    <div class="dashboard-total">総売上: ¥ <span id="total-amount">0</span> （<span id="record-count">0</span> 件送信済）</div>
+    <div class="dashboard-total">総売上: ¥ <span id="total-amount">0</span> （<span id="record-count">0</span> 件の記録）</div>
     <div class="summary-list" id="summary-list"></div>
     
-    <button id="undo-confirmed-btn" class="btn-undo-confirmed" onclick="undoConfirmedOrder()" disabled>
-      ⚠ 直前の確定を取り消す（スプレッドシートからも削除）
+    <!-- 履歴表示切り替えボタン -->
+    <button class="btn-toggle-history" onclick="toggleHistory()">
+      📋 売上履歴（一覧）を表示/隠す
     </button>
+
+    <!-- 履歴一覧エリア -->
+    <div class="history-container" id="history-container"></div>
 
     <div class="admin-buttons">
       <button class="btn-admin" onclick="exportCSV()">CSV保存</button>
-      <button class="btn-admin" onclick="clearHistoryData()">累計リセット</button>
+      <button class="btn-admin" onclick="clearHistoryData()">全データリセット</button>
     </div>
   </div>
 </div>
@@ -440,8 +483,6 @@
 <div id="toast"></div>
 
 <script>
-  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyXaMnmm7ilYStOOo594w9ShBbDAZdI2r-0j9CftDDT_XicuLGTwede05EaRqfJZQqO/exec";
-
   let qtyAdvance = 1;
   let qtySameday = 1;
   let currentCart = [];
@@ -496,14 +537,11 @@
     if (currentCart.length === 0) return;
 
     const timestamp = new Date();
-    const formattedTime = `${timestamp.getFullYear()}/${(timestamp.getMonth()+1).toString().padStart(2,'0')}/${timestamp.getDate().toString().padStart(2,'0')} ${timestamp.getHours().toString().padStart(2,'0')}:${timestamp.getMinutes().toString().padStart(2,'0')}:${timestamp.getSeconds().toString().padStart(2,'0')}`;
-    const batchId = Date.now();
+    const formattedTime = `${(timestamp.getMonth()+1).toString().padStart(2,'0')}/${timestamp.getDate().toString().padStart(2,'0')} ${timestamp.getHours().toString().padStart(2,'0')}:${timestamp.getMinutes().toString().padStart(2,'0')}:${timestamp.getSeconds().toString().padStart(2,'0')}`;
 
     currentCart.forEach(item => {
       const record = {
-        action: "register",
-        batchId: batchId,
-        id: Date.now(),
+        id: Date.now() + Math.random(), // 固有ID
         time: formattedTime,
         category: item.category,
         item: item.item,
@@ -512,7 +550,6 @@
         subtotal: item.subtotal
       };
       historySalesData.push(record);
-      sendToGoogleSheet(record);
     });
 
     saveLocalData();
@@ -522,62 +559,34 @@
     updateUI();
   }
 
-  function undoConfirmedOrder() {
-    if (historySalesData.length === 0) return;
-
-    if (!confirm("直前の確定操作を取り消し、スプレッドシートからも削除しますか？")) {
-      return;
+  // 一覧から指定の1件を削除
+  function deleteSingleHistory(recordId) {
+    if (confirm("この記録を削除してもよろしいですか？")) {
+      historySalesData = historySalesData.filter(r => r.id !== recordId);
+      saveLocalData();
+      updateUI();
+      showToast("記録を1件削除しました");
     }
-
-    const lastRecord = historySalesData[historySalesData.length - 1];
-    const targetBatchId = lastRecord.batchId;
-
-    let removeCount = 0;
-    if (targetBatchId) {
-      while (historySalesData.length > 0 && historySalesData[historySalesData.length - 1].batchId === targetBatchId) {
-        historySalesData.pop();
-        removeCount++;
-      }
-    } else {
-      historySalesData.pop();
-      removeCount = 1;
-    }
-
-    for (let i = 0; i < removeCount; i++) {
-      sendToGoogleSheet({ action: "undo" });
-    }
-
-    saveLocalData();
-    showToast("直前の確定データを取り消しました");
-    updateUI();
   }
 
-  function sendToGoogleSheet(payload) {
-    if (!GAS_WEBAPP_URL || GAS_WEBAPP_URL.includes("ここにコピーしたURL")) return;
-    try {
-      fetch(GAS_WEBAPP_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      }).catch(err => console.log("同期エラー"));
-    } catch(e) {
-      console.log("通信エラー");
-    }
+  function toggleHistory() {
+    const container = document.getElementById('history-container');
+    container.classList.toggle('open');
   }
 
   function saveLocalData() {
-    localStorage.setItem('school_fest_sales_history', JSON.stringify(historySalesData));
+    localStorage.setItem('school_fest_offline_sales', JSON.stringify(historySalesData));
   }
 
   function loadLocalData() {
-    const saved = localStorage.getItem('school_fest_sales_history');
+    const saved = localStorage.getItem('school_fest_offline_sales');
     if (saved) {
       try { historySalesData = JSON.parse(saved); } catch(e) { historySalesData = []; }
     }
   }
 
   function updateUI() {
+    // 1. カートUI描画
     const cartContainer = document.getElementById('cart-list');
     let cartTotal = 0;
 
@@ -602,8 +611,8 @@
     document.getElementById('undo-cart-btn').disabled = currentCart.length === 0;
     document.getElementById('clear-cart-btn').disabled = currentCart.length === 0;
 
+    // 2. 集計データUI描画
     document.getElementById('record-count').innerText = historySalesData.length;
-    document.getElementById('undo-confirmed-btn').disabled = historySalesData.length === 0;
 
     let totalSales = 0;
     const summary = {
@@ -631,6 +640,26 @@
       div.innerHTML = `<span>${s.name}</span><span>${s.qty} 個</span>`;
       summaryContainer.appendChild(div);
     });
+
+    // 3. 履歴一覧リスト描画（新しい順）
+    const historyContainer = document.getElementById('history-container');
+    if (historySalesData.length === 0) {
+      historyContainer.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 10px;">履歴はありません</div>';
+    } else {
+      historyContainer.innerHTML = '';
+      [...historySalesData].reverse().forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'history-row';
+        div.innerHTML = `
+          <div class="history-info">
+            <span>[${r.category}] ${r.item} × ${r.qty} (¥${r.subtotal})</span>
+            <span class="history-time">${r.time}</span>
+          </div>
+          <button class="btn-del-single" onclick="deleteSingleHistory(${r.id})">削除</button>
+        `;
+        historyContainer.appendChild(div);
+      });
+    }
   }
 
   function exportCSV() {
@@ -654,11 +683,11 @@
   }
 
   function clearHistoryData() {
-    if (confirm("端末の累計実績を削除しますか？")) {
+    if (confirm("端末の全売上データを削除しますか？（※復元できません）")) {
       historySalesData = [];
       saveLocalData();
       updateUI();
-      showToast("累計実績をクリアしました");
+      showToast("データを初期化しました");
     }
   }
 
